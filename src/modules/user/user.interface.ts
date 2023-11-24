@@ -25,7 +25,14 @@ interface IUser {
   isActive: boolean;
   hobbies: string[];
   address: Address;
-  orders: Order[];
+  orders?: Order[];
 }
+
+export type UpdateUser = Partial<
+  Omit<IUser, '_id' | 'orders' | 'password' | 'fullName' | 'address'>
+> & {
+  fullName?: Partial<FullName>;
+  address?: Partial<Address>;
+};
 
 export default IUser;

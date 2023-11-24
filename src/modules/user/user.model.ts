@@ -1,8 +1,12 @@
 import validateEmail from '@/utils/validateEmail';
-import { model, Schema } from 'mongoose';
+import { Model, Schema, model } from 'mongoose';
 import IUser from './user.interface';
 
-const UserModel = new Schema<IUser>(
+export interface UserModel extends Model<IUser> {
+  getSingleUser(userId: number): Promise<IUser | null>;
+}
+
+const UserSchema = new Schema<IUser, UserModel>(
   {
     userId: {
       type: Number,
@@ -107,6 +111,13 @@ const UserModel = new Schema<IUser>(
   { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } },
 );
 
-const User = model<IUser>('User', UserModel);
+UserSchema.static('getSingleUser', function getSingleUser(userId: number) {
+  return this.findOne(
+    { userId },
+    { password: 0, _id: 0, orders: 0, createdAt: 0, updatedAt: 0, __v: 0 },
+  ).exec();
+});
+
+const User = model<IUser, UserModel>('User', UserSchema);
 
 export default User;

@@ -1,21 +1,31 @@
 import { MongooseValidationError } from '@/interfaces/common';
 
 // get mongoose validation errors
-const getMongooseErrors = (err: MongooseValidationError, collectionName: string) => {
-  const errors = {} as Record<string, string>;
+const getMongooseErrors = (error: unknown, collectionName: string) => {
+  let errors: Record<string, string> | null = null;
 
-  // duplicate error
-  if (err.code === 11000 && err.keyPattern) {
-    Object.keys(err.keyPattern).forEach((key) => {
-      errors[key] = `This ${key} is already used in an another ${collectionName}`;
-    });
-  }
+  if (error instanceof Error) {
+    const err = error as MongooseValidationError;
 
-  // validation error
-  if (err.message.includes('validation failed') && err.errors) {
-    Object.values(err.errors).forEach(({ properties }) => {
-      errors[properties.path] = properties.message;
-    });
+    // duplicate error
+    if (err.code === 11000 && err.keyPattern) {
+      if (!errors) {
+        errors = {};
+      }
+      Object.keys(err.keyPattern).forEach((key) => {
+        errors![key] = `This ${key} is already used in an another ${collectionName}`;
+      });
+    }
+
+    // validation error
+    if (err.message.includes('validation failed') && err.errors) {
+      if (!errors) {
+        errors = {};
+      }
+      Object.values(err.errors).forEach(({ properties }) => {
+        errors![properties.path] = properties.message;
+      });
+    }
   }
   return errors;
 };
