@@ -1,5 +1,5 @@
 import { AnyKeys, AnyObject } from 'mongoose';
-import IUser, { UpdateUser } from './user.interface';
+import IUser, { Order, UpdateUser } from './user.interface';
 import User from './user.model';
 
 export const createUserToDb = (user: IUser) => new User(user).save();
@@ -19,6 +19,23 @@ export const getAllUsersFromDb = () => {
 export const getUserByUserIdFromDb = (userId: number) => User.getSingleUser(userId);
 
 export const deleteUserFromDb = (userId: number) => User.deleteOne({ userId });
+
+export const createOrderToDb = (userId: number, order: Order) => {
+  const createDoc = { $push: { orders: order } };
+  const options = {
+    new: true,
+    upsert: true,
+
+    projection: {
+      password: 0,
+      _id: 0,
+      createdAt: 0,
+      updatedAt: 0,
+      __v: 0,
+    },
+  };
+  return User.findOneAndUpdate({ userId }, createDoc, options);
+};
 
 export const updateUserToDb = (userId: number, update: UpdateUser) => {
   const {

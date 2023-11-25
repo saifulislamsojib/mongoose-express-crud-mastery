@@ -1,6 +1,12 @@
 import validateEmail from '@/utils/validateEmail';
 import { z } from 'zod';
 
+export const orderValidationSchema = z.object({
+  productName: z.string().trim().min(1, 'Product name should be at least 1 character long'),
+  price: z.number().positive('Price should be a positive number'),
+  quantity: z.number().int().positive('Quantity should be a positive integer'),
+});
+
 const userCreateValidation = {
   userId: z
     .number()
@@ -31,15 +37,7 @@ const userCreateValidation = {
       country: z.string().trim().min(1, 'Country should be at least 1 character long'),
     })
     .required(),
-  orders: z
-    .array(
-      z.object({
-        productName: z.string().trim().min(1, 'Product name should be at least 1 character long'),
-        price: z.number(),
-        quantity: z.number().int().positive('Quantity should be a positive integer'),
-      }),
-    )
-    .optional(),
+  orders: z.array(orderValidationSchema).optional(),
 };
 
 export const UserCreateValidationSchema = z.object(userCreateValidation);

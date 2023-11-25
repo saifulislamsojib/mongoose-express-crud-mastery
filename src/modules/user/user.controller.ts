@@ -4,13 +4,18 @@ import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
 import { UserCreated } from './user.interface';
 import {
+  createOrderToDb,
   createUserToDb,
   deleteUserFromDb,
   getAllUsersFromDb,
   getUserByUserIdFromDb,
   updateUserToDb,
 } from './user.service';
-import { UserCreateValidationSchema, UserUpdateValidationSchema } from './user.validation';
+import {
+  UserCreateValidationSchema,
+  UserUpdateValidationSchema,
+  orderValidationSchema,
+} from './user.validation';
 
 export const createUser: RequestHandler = async (req, res, next) => {
   try {
@@ -111,6 +116,16 @@ export const updateUser: RequestHandler = async (req, res, next) => {
     const data = validate(req, res, UserUpdateValidationSchema);
     if (!data) return next();
     const user = await updateUserToDb(+req.params.userId, data);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          description: 'User not found!',
+        },
+      });
+    }
     return res.status(200).json({
       success: true,
       message: 'User updated successfully!',
@@ -134,6 +149,38 @@ export const deleteUser: RequestHandler = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'User deleted successfully!',
+      data: null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+      error: {
+        code: 500,
+        description: 'Something went wrong',
+      },
+    });
+  }
+};
+
+export const createOrder: RequestHandler = async (req, res, next) => {
+  try {
+    const data = validate(req, res, orderValidationSchema);
+    if (!data) return next();
+    const user = await createOrderToDb(+req.params.userId, data);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          description: 'User not found!',
+        },
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: 'Order created successfully!',
       data: null,
     });
   } catch (error) {
