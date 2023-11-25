@@ -17,6 +17,7 @@ import {
   UserCreateValidationSchema,
   UserUpdateValidationSchema,
   orderValidationSchema,
+  userIdValidationSchema,
 } from './user.validation';
 
 export const createUser: RequestHandler = async (req, res, next) => {
@@ -83,9 +84,11 @@ export const getAllUser: RequestHandler = async (req, res) => {
   }
 };
 
-export const getSingleUser: RequestHandler = async (req, res) => {
+export const getSingleUser: RequestHandler = async (req, res, next) => {
   try {
-    const user = await getUserByUserIdFromDb(+req.params.userId);
+    const data = validate(req, res, userIdValidationSchema, 'params');
+    if (!data) return next();
+    const user = await getUserByUserIdFromDb(+data.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -115,9 +118,11 @@ export const getSingleUser: RequestHandler = async (req, res) => {
 
 export const updateUser: RequestHandler = async (req, res, next) => {
   try {
+    const validatedUserId = validate(req, res, userIdValidationSchema, 'params');
+    if (!validatedUserId) return next();
     const data = validate(req, res, UserUpdateValidationSchema);
     if (!data) return next();
-    const user = await updateUserToDb(+req.params.userId, data);
+    const user = await updateUserToDb(+validatedUserId.userId, data);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -145,9 +150,11 @@ export const updateUser: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const deleteUser: RequestHandler = async (req, res) => {
+export const deleteUser: RequestHandler = async (req, res, next) => {
   try {
-    const user = await getUserByUserIdFromDb(+req.params.userId);
+    const validatedUserId = validate(req, res, userIdValidationSchema, 'params');
+    if (!validatedUserId) return next();
+    const user = await getUserByUserIdFromDb(+validatedUserId.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -178,9 +185,11 @@ export const deleteUser: RequestHandler = async (req, res) => {
 
 export const createOrder: RequestHandler = async (req, res, next) => {
   try {
+    const validatedUserId = validate(req, res, userIdValidationSchema, 'params');
+    if (!validatedUserId) return next();
     const data = validate(req, res, orderValidationSchema);
     if (!data) return next();
-    const user = await createOrderToDb(+req.params.userId, data);
+    const user = await createOrderToDb(+validatedUserId.userId, data);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -208,9 +217,11 @@ export const createOrder: RequestHandler = async (req, res, next) => {
   }
 };
 
-export const getAllOrders: RequestHandler = async (req, res) => {
+export const getAllOrders: RequestHandler = async (req, res, next) => {
   try {
-    const user = await getAllOrdersFromDb(+req.params.userId);
+    const validatedUserId = validate(req, res, userIdValidationSchema, 'params');
+    if (!validatedUserId) return next();
+    const user = await getAllOrdersFromDb(+validatedUserId.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -238,9 +249,11 @@ export const getAllOrders: RequestHandler = async (req, res) => {
   }
 };
 
-export const getAllOrdersTotalPrice: RequestHandler = async (req, res) => {
+export const getAllOrdersTotalPrice: RequestHandler = async (req, res, next) => {
   try {
-    const user = await getUserByUserIdFromDb(+req.params.userId);
+    const validatedUserId = validate(req, res, userIdValidationSchema, 'params');
+    if (!validatedUserId) return next();
+    const user = await getUserByUserIdFromDb(+validatedUserId.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -251,7 +264,7 @@ export const getAllOrdersTotalPrice: RequestHandler = async (req, res) => {
         },
       });
     }
-    const data = await getAllOrdersTotalPriceFromDb(+req.params.userId);
+    const data = await getAllOrdersTotalPriceFromDb(+validatedUserId.userId);
     return res.status(200).json({
       success: true,
       message: 'Total price calculated successfully!',

@@ -7,6 +7,15 @@ export const orderValidationSchema = z.object({
   quantity: z.number().int().positive('Quantity should be a positive integer'),
 });
 
+export const userIdValidationSchema = z.object({
+  userId: z
+    .string()
+    .refine(
+      (userId) => !Number.isNaN(+userId) && Number.isInteger(+userId) && +userId > 0,
+      'User ID should be positive integer number',
+    ),
+});
+
 const userCreateValidation = {
   userId: z
     .number()

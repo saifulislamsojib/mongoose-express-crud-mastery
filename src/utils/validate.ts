@@ -17,7 +17,7 @@ const validate = <T extends ZodRawShape>(
       success: false,
       message,
       error: {
-        code: 404,
+        code: 400,
         description: message,
       },
     });
