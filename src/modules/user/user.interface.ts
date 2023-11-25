@@ -28,6 +28,13 @@ interface IUser {
   orders?: Order[];
 }
 
+export interface UserCreated extends IUser {
+  _id: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+}
+
 export type UpdateUser = Partial<
   Omit<IUser, '_id' | 'orders' | 'password' | 'fullName' | 'address'>
 > & {

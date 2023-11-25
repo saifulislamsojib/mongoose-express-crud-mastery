@@ -2,6 +2,7 @@ import getMongooseErrors from '@/utils/getMongooseErrors';
 import validate from '@/utils/validate';
 import { hash } from 'bcrypt';
 import { RequestHandler } from 'express';
+import { UserCreated } from './user.interface';
 import {
   createUserToDb,
   deleteUserFromDb,
@@ -17,7 +18,7 @@ export const createUser: RequestHandler = async (req, res, next) => {
     if (!data) return next();
     data.password = await hash(data.password, 12);
     const user = await createUserToDb(data);
-    const newUser = JSON.parse(JSON.stringify(user));
+    const newUser: Partial<UserCreated> = JSON.parse(JSON.stringify(user));
     delete newUser.password;
     delete newUser._id;
     delete newUser.orders;

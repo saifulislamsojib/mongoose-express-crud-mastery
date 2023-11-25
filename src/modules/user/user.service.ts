@@ -2,10 +2,17 @@ import { AnyKeys, AnyObject } from 'mongoose';
 import IUser, { UpdateUser } from './user.interface';
 import User from './user.model';
 
-export const createUserToDb = (user: Omit<IUser, '_id'>) => new User(user).save();
+export const createUserToDb = (user: IUser) => new User(user).save();
 
 export const getAllUsersFromDb = () => {
-  const project = { _id: 0, username: 1, fullName: 1, age: 1, email: 1, address: 1 };
+  const project = {
+    _id: 0,
+    username: 1,
+    fullName: 1,
+    age: 1,
+    email: 1,
+    address: 1,
+  };
   return User.find({}, project);
 };
 
@@ -52,7 +59,14 @@ export const updateUserToDb = (userId: number, update: UpdateUser) => {
     { $set: updateDoc },
     {
       new: true,
-      projection: { password: 0, _id: 0, orders: 0, createdAt: 0, updatedAt: 0, __v: 0 },
+      projection: {
+        password: 0,
+        _id: 0,
+        orders: 0,
+        createdAt: 0,
+        updatedAt: 0,
+        __v: 0,
+      },
     },
   );
 };
