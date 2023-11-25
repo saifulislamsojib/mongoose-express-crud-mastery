@@ -7,6 +7,8 @@ import {
   createOrderToDb,
   createUserToDb,
   deleteUserFromDb,
+  getAllOrdersFromDb,
+  getAllOrdersTotalPriceFromDb,
   getAllUsersFromDb,
   getUserByUserIdFromDb,
   updateUserToDb,
@@ -182,6 +184,56 @@ export const createOrder: RequestHandler = async (req, res, next) => {
       success: true,
       message: 'Order created successfully!',
       data: null,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+      error: {
+        code: 500,
+        description: 'Something went wrong',
+      },
+    });
+  }
+};
+
+export const getAllOrders: RequestHandler = async (req, res) => {
+  try {
+    const user = await getAllOrdersFromDb(+req.params.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          description: 'User not found!',
+        },
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: 'Order fetched successfully!',
+      data: user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+      error: {
+        code: 500,
+        description: 'Something went wrong',
+      },
+    });
+  }
+};
+
+export const getAllOrdersTotalPrice: RequestHandler = async (req, res) => {
+  try {
+    const data = await getAllOrdersTotalPriceFromDb(+req.params.userId);
+    return res.status(200).json({
+      success: true,
+      message: 'Total price calculated successfully!',
+      data: data?.[0],
     });
   } catch (error) {
     return res.status(500).json({

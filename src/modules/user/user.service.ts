@@ -18,6 +18,31 @@ export const getAllUsersFromDb = () => {
 
 export const getUserByUserIdFromDb = (userId: number) => User.getSingleUser(userId);
 
+export const getAllOrdersFromDb = (userId: number) => {
+  const project = { orders: 1, _id: 0 };
+  return User.findOne({ userId }, project);
+};
+
+// eslint-disable-next-line arrow-body-style
+export const getAllOrdersTotalPriceFromDb = (userId: number) => {
+  return User.aggregate([
+    { $match: { userId } },
+    { $unwind: '$orders' },
+    {
+      $group: {
+        _id: null,
+        totalPrice: { $sum: '$orders.price' },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        totalPrice: 1,
+      },
+    },
+  ]);
+};
+
 export const deleteUserFromDb = (userId: number) => User.deleteOne({ userId });
 
 export const createOrderToDb = (userId: number, order: Order) => {
