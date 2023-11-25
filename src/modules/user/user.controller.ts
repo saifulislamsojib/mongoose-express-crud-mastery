@@ -147,7 +147,18 @@ export const updateUser: RequestHandler = async (req, res, next) => {
 
 export const deleteUser: RequestHandler = async (req, res) => {
   try {
-    await deleteUserFromDb(+req.params.userId);
+    const user = await getUserByUserIdFromDb(+req.params.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          description: 'User not found!',
+        },
+      });
+    }
+    await deleteUserFromDb(user.userId);
     return res.status(200).json({
       success: true,
       message: 'User deleted successfully!',
@@ -229,6 +240,17 @@ export const getAllOrders: RequestHandler = async (req, res) => {
 
 export const getAllOrdersTotalPrice: RequestHandler = async (req, res) => {
   try {
+    const user = await getUserByUserIdFromDb(+req.params.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        error: {
+          code: 404,
+          description: 'User not found!',
+        },
+      });
+    }
     const data = await getAllOrdersTotalPriceFromDb(+req.params.userId);
     return res.status(200).json({
       success: true,

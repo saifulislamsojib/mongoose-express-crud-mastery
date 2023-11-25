@@ -23,8 +23,11 @@ export const getAllOrdersFromDb = (userId: number) => {
   return User.findOne({ userId }, project);
 };
 
-// eslint-disable-next-line arrow-body-style
 export const getAllOrdersTotalPriceFromDb = (userId: number) => {
+  const project = {
+    _id: 0,
+    totalPrice: 1,
+  };
   return User.aggregate([
     { $match: { userId } },
     { $unwind: '$orders' },
@@ -35,10 +38,7 @@ export const getAllOrdersTotalPriceFromDb = (userId: number) => {
       },
     },
     {
-      $project: {
-        _id: 0,
-        totalPrice: 1,
-      },
+      $project: project,
     },
   ]);
 };
